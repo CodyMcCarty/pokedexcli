@@ -19,60 +19,45 @@ func TestCleanInput(t *testing.T) {
 			expected: []string{},
 		},
 		{
+			input:    "   ",
+			expected: []string{},
+		},
+		{
+			input:    "  Hello  WORLD  ",
+			expected: []string{"hello", "world"},
+		},
+		{
 			input:    "Charmander Bulbasaur PIKACHU",
 			expected: []string{"charmander", "bulbasaur", "pikachu"},
 		},
 		// add more cases here
 	}
 
-	for _, test := range cases {
-		actual := cleanInput(test.input)
-		// Check the length of the actual slice against the expected slice
-		// if they don't match, use t.Errorf to print an error message
-		// and fail the test
-		if len(test.expected) != len(actual) {
-			t.Errorf(`---------------------------------
-Test Failed:
+	for _, c := range cases {
+		actual := cleanInput(c.input)
+		// test length
+		if len(actual) != len(c.expected) {
+			t.Errorf(` Lengths should be equal
 Inputs: "%v"
 Expecting: 	(length = %v)
 %v
 Actual: 	(length = %v)
 %v
-Fail
-`, test.input, len(test.expected), sliceWithBullets(test.expected), len(actual), sliceWithBullets(actual))
-		} else {
-			fmt.Printf(`---------------------------------
-Test Passed:
-Inputs: "%v"
-Expecting: 	(length = %v)
-%v
-Actual: 	(length = %v)
-%v
-Pass
-`, test.input, len(test.expected), sliceWithBullets(test.expected), len(actual), sliceWithBullets(actual))
+`, c.input, len(c.expected), sliceWithBullets(c.expected), len(actual), sliceWithBullets(actual))
+			continue
 		}
+
+		// test words
 		for i := range actual {
 			actualWord := actual[i]
-			expectedWord := test.expected[i]
-			// Check each word in the slice
-			// if they don't match, use t.Errorf to print an error message
-			// and fail the test
+			expectedWord := c.expected[i]
 			if actualWord != expectedWord {
-				t.Errorf(`---------------------------------
-Test Failed:
+				t.Errorf(` Failed
 Inputs: "%v"
 Expecting: 	%v
 Actual: 	%v
 Fail
-`, test.input, expectedWord, actualWord)
-			} else {
-				fmt.Printf(`---------------------------------
-Test Passed:
-Inputs: "%v"
-Expecting: 	%v
-Actual: 	%v
-Pass
-`, test.input, expectedWord, actualWord)
+`, c.input, expectedWord, actualWord)
 			}
 		}
 	}
