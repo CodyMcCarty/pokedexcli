@@ -8,32 +8,62 @@ import (
 
 /** displays the names of 20 location areas in the Pokemon world */
 func commandMap() error {
-	res, err := http.Get("https://pokeapi.co/api/v2/location-area/")
+	fullUrl := pokeURL + "location-area/"
+	if config.next != nil {
+		fullUrl = *config.next
+	}
+
+	res, err := http.Get(fullUrl)
 	if err != nil {
 		return err
 	}
 	defer res.Body.Close()
 
-	var locArea LocArea
+	var page LocArea
 	decoder := json.NewDecoder(res.Body)
-	err = decoder.Decode(&locArea)
+	err = decoder.Decode(&page)
 	if err != nil {
 		return err
 	}
 
 	//locArea.Previous // this is the previous url, what do i do with it?
 
-	for _, r := range locArea.LocResults {
+	for _, r := range page.LocResults {
 		fmt.Println(r.Name)
 	}
+
+	config.next = page.Next
+	config.prev = page.Previous
 	return nil
 }
 
 /** It's similar to the map command, however, instead of displaying the next 20 locations, it displays the previous 20 locations. It's a way to go back. */
 func commandMapBack() error {
-	// todo: implement this using config struct of next and prev to hold the next and previous url
+	if config.prev == nil {
+		fmt.Println("you're on the first page")
+		return nil
+	}
 
-	// If you're on the first "page" of results, this command should just print "you're on the first page"
+	res, err := http.Get(*config.prev)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+
+	var page LocArea
+	decoder := json.NewDecoder(res.Body)
+	err = decoder.Decode(&page)
+	if err != nil {
+		return err
+	}
+
+	for _, r := range page.LocResults {
+		fmt.Println(r.Name)
+	}
+
+	config.next = page.Next
+	config.prev = page.Previous
+
 	return nil
 }
 

@@ -13,18 +13,18 @@ func startRepl() {
 		fmt.Print("Pokedex > ")
 		scanner.Scan()
 		userInput := scanner.Text()
-		commands := cleanInput(userInput)
-		commandName := commands[0]
+		commandWords := cleanInput(userInput)
+		commandName := commandWords[0]
 
 		command, ok := getCommands()[commandName]
-		if ok {
+		if !ok {
+			fmt.Println("Unknown command")
+			continue
+		} else {
 			err := command.callback()
 			if err != nil {
 				fmt.Println(err)
 			}
-		} else {
-			fmt.Println("Unknown command")
-			continue
 		}
 	}
 }
@@ -33,41 +33,41 @@ type cliCommand struct {
 	name        string
 	description string
 	callback    func() error
-	config      *config
 }
 
 /** contain the Next and Previous URLs that you'll need to paginate */
-type config struct {
+type configuration struct {
 	next *string
 	prev *string
 }
 
+var config = &configuration{}
+
 func getCommands() map[string]cliCommand {
-	// keep them alphabetical
 	return map[string]cliCommand{
 		"exit": {
 			name:        "exit",
 			description: "Exits the Pokedex",
 			callback:    commandExit,
-			config:      &config{},
+			//config:      &config{},
 		},
 		"help": {
 			name:        "help",
 			description: "Displays a help message",
 			callback:    commandHelp,
-			config:      &config{},
+			//config:      &config{},
 		},
 		"map": {
 			name:        "map",
 			description: "displays the names of 20 location areas in the Pokemon world",
 			callback:    commandMap,
-			config:      &config{},
+			//config:      &config{},
 		},
 		"mapb": {
 			name:        "mapb",
 			description: "It's similar to the map command, however, instead of displaying the next 20 locations, it displays the previous 20 locations. It's a way to go back.",
 			callback:    commandMapBack,
-			config:      &config{},
+			//config:      &config{},
 		},
 	}
 }
