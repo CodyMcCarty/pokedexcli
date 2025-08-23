@@ -17,22 +17,61 @@ func cleanInput(text string) []string {
 	return result
 }
 
+/** callback for the exit command */
+func commandExit() error {
+	fmt.Println("Closing the Pokedex... Goodbye!")
+	os.Exit(0)
+	return nil
+}
+
+func commandHelp() error {
+	// todo: You can dynamically generate the "usage" section by iterating over my registry of commands. That way the help command will always be up-to-date with the available commands.
+	fmt.Print(`
+Welcome to the Pokedex!
+Usage:
+
+help: Displays a help message
+exit: Exit the Pokedex
+`)
+	return nil
+}
+
+type cliCommand struct {
+	name        string
+	description string
+	callback    func() error
+}
+
 func main() {
-	// Create support for a simple REPL
-	// Wait for user input using bufio.NewScanner (this blocks the code and waits for input, once the user types something and presses enter, the code continues and the input is available in the returned bufio.Scanner)
+	commandMap := map[string]cliCommand{
+		"exit": {
+			name:        "exit",
+			description: "Exits the Pokedex",
+			callback:    commandExit,
+		},
+		"help": {
+			name:        "help",
+			description: "Displays a help message",
+			callback:    commandHelp,
+		},
+	}
+
 	scanner := bufio.NewScanner(os.Stdin)
-	// Start an infinite for loop. This loop will execute once for every command the user types in (we don't want to exit the program after just one command)
 	for {
-		// Use fmt.Print to print the prompt Pokedex > without a newline character
 		fmt.Print("Pokedex > ")
-		// Use the scanner's .Scan and .Text methods to get the user's input as a string
 		scanner.Scan()
 		str := scanner.Text()
-		// Clean the user's input string
-		strs := cleanInput(str)
-		// Capture the first "word" of the input and use it to print: Your command was: <first word>
-		fmt.Println("Your command was:", strs[0])
+		//strs := cleanInput(str)
+
+		command, ok := commandMap[str]
+		if !ok {
+			fmt.Println("Unknown command")
+			continue
+		}
+
+		err := command.callback()
+		if err != nil {
+			continue
+		}
 	}
-	// Test your program. Here's my example session:
-	// Run the CLI again and tee the output (copies the stdout) to a new file called repl.log (and .gitignore the log).
 }
