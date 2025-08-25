@@ -5,9 +5,18 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/CodyMcCarty/pokedexcli/internal/pokeapi"
 )
 
-func startRepl() {
+/** contain the Next and Previous URLs that you'll need to paginate */
+type config struct {
+	pokeapiClient    pokeapi.Client
+	nextLocationsURL *string
+	prevLocationsURL *string
+}
+
+func startRepl(cfg *config) {
 	scanner := bufio.NewScanner(os.Stdin)
 	for {
 		fmt.Print("Pokedex > ")
@@ -21,10 +30,12 @@ func startRepl() {
 			fmt.Println("Unknown command")
 			continue
 		} else {
-			err := command.callback()
+			err := command.callback(cfg)
 			if err != nil {
+
 				fmt.Println(err)
 			}
+			continue
 		}
 	}
 }
@@ -32,16 +43,8 @@ func startRepl() {
 type cliCommand struct {
 	name        string
 	description string
-	callback    func() error
+	callback    func(*config) error
 }
-
-/** contain the Next and Previous URLs that you'll need to paginate */
-type configuration struct {
-	next *string
-	prev *string
-}
-
-var config = &configuration{}
 
 func getCommands() map[string]cliCommand {
 	return map[string]cliCommand{
@@ -60,12 +63,12 @@ func getCommands() map[string]cliCommand {
 		"map": {
 			name:        "map",
 			description: "displays the names of 20 location areas in the Pokemon world",
-			callback:    commandMap,
+			callback:    commandMapFwd,
 			//config:      &config{},
 		},
 		"mapb": {
 			name:        "mapb",
-			description: "It's similar to the map command, however, instead of displaying the next 20 locations, it displays the previous 20 locations. It's a way to go back.",
+			description: "It's similar to the map command, however, instead of displaying the nextLocationsURL 20 locations, it displays the previous 20 locations. It's a way to go back.",
 			callback:    commandMapBack,
 			//config:      &config{},
 		},

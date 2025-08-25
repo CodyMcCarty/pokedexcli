@@ -1,68 +1,45 @@
 package main
 
 import (
-	"encoding/json"
+	"errors"
 	"fmt"
-	"net/http"
 )
 
 /** displays the names of 20 location areas in the Pokemon world */
-func commandMap() error {
-	fullUrl := pokeURL + "location-area/"
-	if config.next != nil {
-		fullUrl = *config.next
-	}
+func commandMapFwd(cfg *config) error {
 
-	res, err := http.Get(fullUrl)
-	if err != nil {
-		return err
-	}
-	defer res.Body.Close()
-
-	var page LocArea
-	decoder := json.NewDecoder(res.Body)
-	err = decoder.Decode(&page)
+	locationsResp, err := cfg.pokeapiClient.ListLocations(cfg.nextLocationsURL)
 	if err != nil {
 		return err
 	}
 
-	//locArea.Previous // this is the previous url, what do i do with it?
+	cfg.nextLocationsURL = locationsResp.Next
+	cfg.prevLocationsURL = locationsResp.Previous
 
-	for _, r := range page.LocResults {
-		fmt.Println(r.Name)
+	for _, loc := range locationsResp.Results {
+		fmt.Println(loc.Name)
 	}
 
-	config.next = page.Next
-	config.prev = page.Previous
 	return nil
 }
 
-/** It's similar to the map command, however, instead of displaying the next 20 locations, it displays the previous 20 locations. It's a way to go back. */
-func commandMapBack() error {
-	if config.prev == nil {
-		fmt.Println("you're on the first page")
-		return nil
+/** It's similar to the map command, however, instead of displaying the nextLocationsURL 20 locations, it displays the previous 20 locations. It's a way to go back. */
+func commandMapBack(cfg *config) error {
+	if cfg.prevLocationsURL == nil {
+		return errors.New("you're on the first page")
 	}
 
-	res, err := http.Get(*config.prev)
-	if err != nil {
-		return err
-	}
-	defer res.Body.Close()
-
-	var page LocArea
-	decoder := json.NewDecoder(res.Body)
-	err = decoder.Decode(&page)
+	locationResp, err := cfg.pokeapiClient.ListLocations(cfg.prevLocationsURL)
 	if err != nil {
 		return err
 	}
 
-	for _, r := range page.LocResults {
-		fmt.Println(r.Name)
-	}
+	cfg.nextLocationsURL = locationResp.Next
+	cfg.prevLocationsURL = locationResp.Previous
 
-	config.next = page.Next
-	config.prev = page.Previous
+	for _, loc := range locationResp.Results {
+		fmt.Println(loc.Name)
+	}
 
 	return nil
 }

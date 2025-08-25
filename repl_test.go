@@ -45,6 +45,15 @@ Actual: 	(length = %v)
 %v
 `, c.input, len(c.expected), sliceWithBullets(c.expected), len(actual), sliceWithBullets(actual))
 			continue
+		} else {
+			fmt.Printf(` Length Test Pass
+Inputs: "%v"
+Expecting: 	(length = %v)
+%v
+Actual: 	(length = %v)
+%v
+PASS - running individual tests
+`, c.input, len(c.expected), sliceWithBullets(c.expected), len(actual), sliceWithBullets(actual))
 		}
 
 		// test words
