@@ -6,13 +6,6 @@ import (
 	"time"
 )
 
-// Write at least 1 test for your cache package! The tip below should help you get started.
-
-// Test your application manually to make sure that the cache works as expected.
-// When you use the map command to get data for the first time there should be a noticeable waiting time.
-// However, when you use mapb it should be instantaneous because the data for that page is already in the cache.
-// Feel free to add some logging that informs you in the command line when the cache is being used.
-
 func TestAddGet(t *testing.T) {
 	const interval = 5 * time.Second
 	cases := []struct {
