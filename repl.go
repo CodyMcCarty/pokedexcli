@@ -9,7 +9,6 @@ import (
 	"github.com/CodyMcCarty/pokedexcli/internal/pokeapi"
 )
 
-/** contain the Next and Previous URLs that you'll need to paginate */
 type config struct {
 	pokeapiClient    pokeapi.Client
 	nextLocationsURL *string
@@ -17,27 +16,36 @@ type config struct {
 }
 
 func startRepl(cfg *config) {
-	scanner := bufio.NewScanner(os.Stdin)
+	reader := bufio.NewScanner(os.Stdin)
 	for {
 		fmt.Print("Pokedex > ")
-		scanner.Scan()
-		userInput := scanner.Text()
-		commandWords := cleanInput(userInput)
-		commandName := commandWords[0]
+		reader.Scan()
 
-		command, ok := getCommands()[commandName]
-		if !ok {
-			fmt.Println("Unknown command")
+		words := cleanInput(reader.Text())
+		if len(words) == 0 {
 			continue
-		} else {
+		}
+
+		commandName := words[0]
+
+		command, exists := getCommands()[commandName]
+		if exists {
 			err := command.callback(cfg)
 			if err != nil {
-
 				fmt.Println(err)
 			}
 			continue
+		} else {
+			fmt.Println("Unknown command")
+			continue
 		}
 	}
+}
+
+func cleanInput(text string) []string {
+	output := strings.ToLower(text)
+	words := strings.Fields(output)
+	return words
 }
 
 type cliCommand struct {
@@ -48,39 +56,25 @@ type cliCommand struct {
 
 func getCommands() map[string]cliCommand {
 	return map[string]cliCommand{
-		"exit": {
-			name:        "exit",
-			description: "Exits the Pokedex",
-			callback:    commandExit,
-			//config:      &config{},
-		},
 		"help": {
 			name:        "help",
 			description: "Displays a help message",
 			callback:    commandHelp,
-			//config:      &config{},
 		},
 		"map": {
 			name:        "map",
-			description: "displays the names of 20 location areas in the Pokemon world",
-			callback:    commandMapFwd,
-			//config:      &config{},
+			description: "Get the next page of locations",
+			callback:    commandMapf,
 		},
 		"mapb": {
 			name:        "mapb",
-			description: "It's similar to the map command, however, instead of displaying the nextLocationsURL 20 locations, it displays the previous 20 locations. It's a way to go back.",
-			callback:    commandMapBack,
-			//config:      &config{},
+			description: "Get the previous page of locations",
+			callback:    commandMapb,
+		},
+		"exit": {
+			name:        "exit",
+			description: "Exit the Pokedex",
+			callback:    commandExit,
 		},
 	}
-}
-
-/** The purpose of this function will be to split the user's input into "words" based on whitespace. It should also lowercase the input and trim any leading or trailing whitespace */
-func cleanInput(text string) []string {
-	var result []string
-
-	text = strings.ToLower(text)
-	result = strings.Fields(text)
-
-	return result
 }

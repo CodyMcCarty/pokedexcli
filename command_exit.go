@@ -5,7 +5,6 @@ import (
 	"os"
 )
 
-/** callback for the exit command */
 func commandExit(cfg *config) error {
 	fmt.Println("Closing the Pokedex... Goodbye!")
 	os.Exit(0)

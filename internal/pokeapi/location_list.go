@@ -6,10 +6,11 @@ import (
 	"net/http"
 )
 
-func (c *Client) ListLocations(pageUrl *string) (RespShallowLocations, error) {
+// ListLocations -
+func (c *Client) ListLocations(pageURL *string) (RespShallowLocations, error) {
 	url := baseURL + "/location-area"
-	if pageUrl != nil {
-		url = *pageUrl
+	if pageURL != nil {
+		url = *pageURL
 	}
 
 	req, err := http.NewRequest("GET", url, nil)
